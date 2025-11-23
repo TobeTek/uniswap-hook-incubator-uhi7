@@ -28,8 +28,8 @@ contract PointsHook is BaseHook, ERC1155 {
                 afterInitialize: false,
                 beforeAddLiquidity: false,
                 afterAddLiquidity: true,
-                beforeRemoveLiquidity: true,
-                afterRemoveLiquidity: true,
+                beforeRemoveLiquidity: false,
+                afterRemoveLiquidity: false,
                 beforeSwap: false,
                 afterSwap: true,
                 beforeDonate: false,
@@ -49,6 +49,10 @@ contract PointsHook is BaseHook, ERC1155 {
         BalanceDelta feesAccrued,
         bytes calldata hookData
     ) internal override returns (bytes4, BalanceDelta) {
+        // Mint points equal to 20% of the amount of ETH spent
+        uint256 ethSpendAmount = uint256(int256(-delta.amount0()));
+        uint256 pointsForSwap = ethSpendAmount / 5; // 20% of ETH received
+        _assignPoints(key.toId(), hookData, pointsForSwap);
         return (BaseHook.afterAddLiquidity.selector, delta);
     }
 
